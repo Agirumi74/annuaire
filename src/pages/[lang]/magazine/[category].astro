@@ -42,7 +42,7 @@ const categorySlug = params.category; // Slug de la catégorie depuis l'URL
 
 // ID fixe de la catégorie racine (magazine)
 const magazineCategoryId = 'd20b7566-105a-47f3-947f-dab773bef43e';
-let magazineSlug = 'magazine';
+let magazineSlug = 'magazine'; // Static route name
 let magazineName = 'Magazine';
 
 // Récupération de la catégorie racine pour obtenir magazineSlug et magazineName
@@ -60,7 +60,7 @@ if (rootError) {
   const translation = rootCategory.category_translations.find((t) => t.lang_code === lang);
   if (translation) {
     magazineName = translation.name;
-    magazineSlug = translation.seo_slug || 'magazine';
+    // Keep static route name: magazineSlug = 'magazine'
   }
 }
 

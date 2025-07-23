@@ -29,7 +29,7 @@ if (!pageContext || pageContext.type !== 'category') {
 const categoryId = pageContext.entityId;
 
 let pageTitle = '';
-let categorySlug = '';
+let categorySlug = 'hebergements'; // Static route name
 let categoryDescription: string | null = null;
 
 let featuredAccommodations: AccommodationData[] = [];
@@ -51,7 +51,7 @@ if (rootError) {
   if (translation) {
     pageTitle = translation.name;
     categoryDescription = translation.description;
-    categorySlug = translation.seo_slug || '';
+    // Keep static route name: categorySlug = 'hebergements'
   }
 }
 

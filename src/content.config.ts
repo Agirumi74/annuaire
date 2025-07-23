@@ -7,30 +7,52 @@ import { supabase } from '@lib/supabase';
 export async function supabaseLoader() {
     console.log("Chargement de TOUTES les données depuis Supabase pour la construction du site...");
 
-    const [
-        categoriesRes,
-        articlesRes,
-        authorsRes,
-        relatedArticlesRes,
-        commentsRes
-    ] = await Promise.all([
-        supabase.from('categories').select('*, category_translations(*)'),
-        supabase.from('article_details_view').select('*').eq('status', 'published').is('article_deleted_at', null),
-        supabase.from('authors').select('*, author_translations(*)'),
-        supabase.from('article_related_articles').select('*'),
-        supabase.from('comments').select('*').eq('status', 'approved')
-    ]);
+    // Check if we have valid configuration
+    const supabaseUrl = import.meta.env.SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || supabaseUrl === 'https://demo.supabase.co' || !supabaseAnonKey || supabaseAnonKey === 'demo_key') {
+        console.warn("Supabase not configured properly, returning empty data for build");
+        return {
+            categories: [],
+            articles: [],
+            authors: [],
+        };
+    }
 
-    // On joint les données manuellement ici, c'est plus robuste
-    const articlesData = articlesRes.data?.map(article => {
-        const related = relatedArticlesRes.data?.filter(r => r.article_id === article.article_id).map(r => r.related_article_id) ?? [];
-        const comments = commentsRes.data?.filter(c => c.article_id === article.article_id) ?? [];
-        return { ...article, related_ids: related, comments };
-    }) ?? [];
+    try {
+        const [
+            categoriesRes,
+            articlesRes,
+            authorsRes,
+            relatedArticlesRes,
+            commentsRes
+        ] = await Promise.all([
+            supabase.from('categories').select('*, category_translations(*)'),
+            supabase.from('article_details_view').select('*').eq('status', 'published').is('article_deleted_at', null),
+            supabase.from('authors').select('*, author_translations(*)'),
+            supabase.from('article_related_articles').select('*'),
+            supabase.from('comments').select('*').eq('status', 'approved')
+        ]);
 
-    return {
-        categories: categoriesRes.data ?? [],
-        articles: articlesData,
-        authors: authorsRes.data ?? [],
-    };
+        // On joint les données manuellement ici, c'est plus robuste
+        const articlesData = articlesRes.data?.map(article => {
+            const related = relatedArticlesRes.data?.filter(r => r.article_id === article.article_id).map(r => r.related_article_id) ?? [];
+            const comments = commentsRes.data?.filter(c => c.article_id === article.article_id) ?? [];
+            return { ...article, related_ids: related, comments };
+        }) ?? [];
+
+        return {
+            categories: categoriesRes.data ?? [],
+            articles: articlesData,
+            authors: authorsRes.data ?? [],
+        };
+    } catch (error) {
+        console.error("Error loading from Supabase:", error);
+        return {
+            categories: [],
+            articles: [],
+            authors: [],
+        };
+    }
 }

@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^9.3.0",
     "@iconify-json/circle-flags": "^1.2.6",
     "@iconify-json/openmoji": "^1.2.9",
     "@supabase/supabase-js": "^2.50.0",
