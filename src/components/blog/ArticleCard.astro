@@ -63,7 +63,7 @@ const translations = {
 const t = translations[lang] ?? translations.fr;
 
 const articleUrl = `/${lang}/${magazineSlug}/${article.category_seo_slug}/${article.article_seo_slug}`;
-const defaultImage = `https://placehold.co/800x500/e2e8f0/64748b?text=${article.category_icon_name ? article.category_icon_name.replace('openmoji:', '').replace(/-/g, ' ') : 'Article'}`;
+const defaultImage = `/api/placeholder/800/500?text=${encodeURIComponent(article.category_icon_name ? article.category_icon_name.replace('openmoji:', '').replace(/-/g, ' ') : 'Article')}`;
 const formatDate = (dateString?: string) => dateString ? new Date(dateString).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 ---
 

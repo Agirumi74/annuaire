@@ -1,12 +1,118 @@
 ---
 export const prerender = false;
-import Welcome from '@components/Welcome.astro';
 import Layout from '@layouts/Layout.astro';
+import { Card, CardHeader, CardContent, CardTitle } from '@components/starwind/card';
+import { Button } from '@components/starwind/button';
+import { Icon } from 'astro-icon/components';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const { lang } = Astro.locals;
+
+// Get site configuration
+const { site } = Astro.locals;
+const menuCategories = site?.menuCategories || [];
+
+// Find main categories (magazine and hébergements)
+const magazineCategory = menuCategories.find(cat => 
+  cat.parent_id === null && cat.id === 'd20b7566-105a-47f3-947f-dab773bef43e'
+);
+
+const hebergementsCategory = menuCategories.find(cat => 
+  cat.parent_id === null && cat.id === 'ad66f5d9-5f9f-4e2d-8d1f-6d2e5d5f6f5f'
+);
+
+// Get translated category names
+const getMagazineName = () => {
+  if (!magazineCategory) return 'Magazine';
+  const translation = magazineCategory.category_translations?.find(t => t.lang_code === lang);
+  return translation?.name || 'Magazine';
+};
+
+const getHebergementsName = () => {
+  if (!hebergementsCategory) return 'Hébergements';
+  const translation = hebergementsCategory.category_translations?.find(t => t.lang_code === lang);
+  return translation?.name || 'Hébergements';
+};
+
+const pageTexts = {
+  fr: {
+    title: 'Bienvenue sur l\'Annuaire d\'Annecy',
+    subtitle: 'Découvrez tout ce qu\'Annecy et sa région ont à offrir',
+    magazine: 'Magazine',
+    magazineDesc: 'Actualités, bons plans et histoires locales',
+    hebergements: 'Hébergements',
+    hebergementsDesc: 'Hotels, chambres d\'hôtes et locations',
+    explore: 'Explorer'
+  },
+  en: {
+    title: 'Welcome to Annecy Directory',
+    subtitle: 'Discover everything Annecy and its region have to offer',
+    magazine: 'Magazine',
+    magazineDesc: 'News, tips and local stories',
+    hebergements: 'Accommodations',
+    hebergementsDesc: 'Hotels, B&Bs and rentals',
+    explore: 'Explore'
+  },
+  es: {
+    title: 'Bienvenido al Directorio de Annecy',
+    subtitle: 'Descubre todo lo que Annecy y su región tienen para ofrecer',
+    magazine: 'Revista',
+    magazineDesc: 'Noticias, consejos e historias locales',
+    hebergements: 'Alojamientos',
+    hebergementsDesc: 'Hoteles, casas rurales y alquileres',
+    explore: 'Explorar'
+  }
+};
+
+const texts = pageTexts[lang] || pageTexts.fr;
 ---
 
-<Layout>
-	<Welcome />
+<Layout title={texts.title} lang={lang}>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-16">
+      <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+        {texts.title}
+      </h1>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        {texts.subtitle}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      {/* Magazine Card */}
+      <Card class="group hover:shadow-lg transition-shadow duration-300">
+        <CardHeader class="text-center">
+          <div class="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+            <Icon name="openmoji:newspaper" class="w-8 h-8 text-blue-600" />
+          </div>
+          <CardTitle class="text-2xl">{getMagazineName()}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-center">
+          <p class="text-gray-600 mb-6">{texts.magazineDesc}</p>
+          <Button asChild class="w-full">
+            <a href={`/${lang}/magazine`}>
+              {texts.explore} {getMagazineName()}
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Hébergements Card */}
+      <Card class="group hover:shadow-lg transition-shadow duration-300">
+        <CardHeader class="text-center">
+          <div class="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
+            <Icon name="openmoji:bed" class="w-8 h-8 text-green-600" />
+          </div>
+          <CardTitle class="text-2xl">{getHebergementsName()}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-center">
+          <p class="text-gray-600 mb-6">{texts.hebergementsDesc}</p>
+          <Button asChild variant="outline" class="w-full">
+            <a href={`/${lang}/hebergements`}>
+              {texts.explore} {getHebergementsName()}
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  </main>
 </Layout>

@@ -68,7 +68,7 @@ const authorTranslation = author.author_translations[0];
                     // On peut réutiliser une carte d'article existante ou en faire une custom
                     return (
                         <a href={articleUrl} class="group block bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow">
-                            <img src={article.article_featured_image_url || 'https://placehold.co/800x500'} alt={article.article_featured_image_alt || 'Image'} class="w-full h-40 object-cover rounded-t-xl" />
+                            <img src={article.article_featured_image_url || '/api/placeholder/800/500?text=Article'} alt={article.article_featured_image_alt || 'Image'} class="w-full h-40 object-cover rounded-t-xl" />
                             <div class="p-4">
                                 <Badge variant="secondary" class="mb-2">{article.category_name}</Badge>
                                 <h3 class="font-bold text-gray-800 group-hover:text-blue-600 line-clamp-2">{article.article_title}</h3>

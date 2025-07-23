@@ -52,7 +52,7 @@ const translations = {
 const t = translations[lang] ?? translations.fr;
 
 const accommodationUrl = `/${lang}/${hebergementsSlug}/${accommodation.category_seo_slug}/${accommodation.seo_slug}`;
-const defaultImage = `https://placehold.co/800x500/e2e8f0/64748b?text=Hébergement`;
+const defaultImage = `/api/placeholder/800/500?text=${encodeURIComponent('Hébergement')}`;
 ---
 
 <article class={`

@@ -1,6 +1,7 @@
 // src/middleware.ts
 import { defineMiddleware } from 'astro:middleware';
-import { supabase } from './lib/supabase'; // Assure-toi que le chemin est correct
+import { supabase } from './lib/supabase';
+import { SITE_CONFIG } from './lib/config';
 
 export const onRequest = defineMiddleware(async (context, next) => {
     const { url, locals, params } = context;
@@ -116,28 +117,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (pathSegments.length >= 2 && pathSegments[0] === lang) {
         const rootSlugFromUrl = pathSegments[1];
         console.log('Root Slug:', rootSlugFromUrl);
-        const rootCategory = menuCategories?.find(cat =>
-            cat.parent_id === null &&
-            (cat.slug === rootSlugFromUrl || cat.category_translations.some(t => t.seo_slug === rootSlugFromUrl && t.lang_code === lang))
-        );
-        console.log('Found Root Category:', rootCategory);
-
-        if (rootCategory) {
-            // Distinguer entre magazine et hébergements via l'ID de la catégorie racine
-            if (rootCategory.id === 'd20b7566-105a-47f3-947f-dab773bef43e') { // ID du magazine
+        
+        // Handle static magazine routes
+        if (rootSlugFromUrl === SITE_CONFIG.ROUTES.MAGAZINE) {
+            const magazineCategory = menuCategories?.find(cat =>
+                cat.parent_id === null && cat.id === SITE_CONFIG.MAGAZINE_CATEGORY_ID
+            );
+            
+            if (magazineCategory) {
                 // Cas 1: Page d'index du magazine (ex: /fr/magazine)
                 if (pathSegments.length === 2) {
-                    locals.pageContext = { type: 'category', entityId: rootCategory.id, categoryType: 'magazine-index' };
+                    locals.pageContext = { type: 'category', entityId: magazineCategory.id, categoryType: 'magazine-index' };
                 }
                 // Cas 2: Page de sous-catégorie du magazine (ex: /fr/magazine/actualites)
                 if (pathSegments.length >= 3) {
                     const subCategorySlugFromUrl = pathSegments[2];
                     const subCategory = menuCategories?.find(cat =>
-                        cat.parent_id === rootCategory.id &&
+                        cat.parent_id === magazineCategory.id &&
                         (cat.slug === subCategorySlugFromUrl || cat.category_translations.some(t => t.seo_slug === subCategorySlugFromUrl && t.lang_code === lang))
                     );
                     if (subCategory) {
-                        locals.pageContext = { type: 'category', entityId: subCategory.id, parentCategoryId: rootCategory.id, categoryType: 'sub-category' };
+                        locals.pageContext = { type: 'category', entityId: subCategory.id, parentCategoryId: magazineCategory.id, categoryType: 'sub-category' };
                         // Cas 3: Page d'article (ex: /fr/magazine/actualites/mon-article)
                         if (pathSegments.length >= 4) {
                             const articleSlugFromUrl = pathSegments[3];
@@ -159,20 +159,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
                         }
                     }
                 }
-            } else if (rootCategory.id === 'ad66f5d9-5f9f-4e2d-8d1f-6d2e5d5f6f5f') { // Remplace par l'ID réel des hébergements
+            }
+        }
+        
+        // Handle static hebergements routes
+        if (rootSlugFromUrl === SITE_CONFIG.ROUTES.HEBERGEMENTS) {
+            const hebergementsCategory = menuCategories?.find(cat =>
+                cat.parent_id === null && cat.id === SITE_CONFIG.HEBERGEMENTS_CATEGORY_ID
+            );
+            
+            if (hebergementsCategory) {
                 // Cas 1: Page d'index des hébergements (ex: /fr/hebergements)
                 if (pathSegments.length === 2) {
-                    locals.pageContext = { type: 'category', entityId: rootCategory.id, categoryType: 'hebergements-index' };
+                    locals.pageContext = { type: 'category', entityId: hebergementsCategory.id, categoryType: 'hebergements-index' };
                 }
                 // Cas 2: Page de sous-catégorie des hébergements (ex: /fr/hebergements/hotels)
                 if (pathSegments.length >= 3) {
                     const subCategorySlugFromUrl = pathSegments[2];
                     const subCategory = menuCategories?.find(cat =>
-                        cat.parent_id === rootCategory.id &&
+                        cat.parent_id === hebergementsCategory.id &&
                         (cat.slug === subCategorySlugFromUrl || cat.category_translations.some(t => t.seo_slug === subCategorySlugFromUrl && t.lang_code === lang))
                     );
                     if (subCategory) {
-                        locals.pageContext = { type: 'category', entityId: subCategory.id, parentCategoryId: rootCategory.id, categoryType: 'sub-category' };
+                        locals.pageContext = { type: 'category', entityId: subCategory.id, parentCategoryId: hebergementsCategory.id, categoryType: 'sub-category' };
                         // Cas 3: Page d'un hébergement (ex: /fr/hebergements/hotels/mon-hotel)
                         if (pathSegments.length >= 4) {
                             const placeSlugFromUrl = pathSegments[3];
@@ -199,7 +208,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     // Gestion des pages d'auteur (ex: /fr/auteurs/jane-doe)
-    if (pathSegments.length >= 2 && pathSegments[0] === lang && pathSegments[1] === 'auteurs' && pathSegments.length === 3) {
+    if (pathSegments.length >= 2 && pathSegments[0] === lang && pathSegments[1] === SITE_CONFIG.ROUTES.AUTHORS && pathSegments.length === 3) {
         const authorSlugFromUrl = pathSegments[2];
         try {
             const { data: authorIdData, error: authorIdError } = await supabase

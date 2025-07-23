@@ -15,6 +15,7 @@ import ArticleCard from '@components/blog/ArticleCard.astro';
 import NewsletterCard from '@components/blog/NewsletterCard.astro';
 import ContributeCard from '@components/blog/ContributeCard.astro';
 import CategoriesWithCount from '@components/blog/CategoriesWithCount.astro';
+import { SITE_CONFIG } from '@lib/config';
 
 interface ArticleData {
   id: string;
@@ -44,13 +45,13 @@ interface SidebarCategory {
 
 const { lang } = Astro.locals;
 
-// ID fixe de la catégorie racine magazine
-const magazineCategoryId = 'd20b7566-105a-47f3-947f-dab773bef43e';
+// ID de la catégorie racine magazine (configurable)
+const magazineCategoryId = SITE_CONFIG.MAGAZINE_CATEGORY_ID;
 
 let pageTitle = 'Magazine';
 let magazineCategoryIcon: string | null = null;
 let magazineCategoryDescription: string | null = null;
-let magazineSlug: string = 'magazine'; // Valeur par défaut
+let magazineSlug: string = SITE_CONFIG.ROUTES.MAGAZINE; // Static route name
 
 let featuredArticles: ArticleData[] = [];
 let recentArticles: ArticleData[] = [];
@@ -77,7 +78,7 @@ if (rootError) {
   if (translation) {
     pageTitle = translation.name;
     magazineCategoryDescription = translation.description;
-    magazineSlug = translation.seo_slug || 'magazine'; // Récupère le slug traduit
+    // Keep static route name: magazineSlug = 'magazine'
   }
 }
 
@@ -233,7 +234,7 @@ if (popularError) {
 // Helper function for default article images
 const defaultArticleImage = (categoryIcon: string | null) => {
   const text = categoryIcon ? categoryIcon.replace('openmoji:', '').replace(/-/g, ' ') : 'Article';
-  return `https://placehold.co/800x500/e2e8f0/64748b?text=${text}`;
+  return `/api/placeholder/800/500?text=${encodeURIComponent(text)}`;
 };
 
 // Helper function to format dates consistently
